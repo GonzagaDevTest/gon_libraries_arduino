@@ -1,0 +1,7 @@
+gon_data_logger	KEYWORD1
+DataLogger		KEYWORD2
+gravar		KEYWORD2
+config		KEYWORD2
+ler		KEYWORD2
+size		KEYWORD2
+listFiles		KEYWORD2
