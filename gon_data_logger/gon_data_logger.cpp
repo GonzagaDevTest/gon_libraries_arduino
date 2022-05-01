@@ -12,56 +12,31 @@
 #include <SPI.h>
 #include <SD.h>
 
-void DataLogger::config(int pin){
+void DataLogger::config(int pin, unsigned long maxSizePer){
+  _maxSizePer = maxSizePer;
   _pin = pin;
   _basePathFiles = "/LOGS/";
-  maxSizePer=200;
   if (!SD.begin(_pin)) {
       Serial.println("Inicializaçåo falhou!");
       while (1);
    }
   listFiles();
   _nameCurrentFile = _lastFileFolder;
-  //  Serial.println("Inicializaçåo concluida!");  
-  Serial.println("Ultimo Arquivo de log gerado");
-  Serial.println(_lastFileFolder);
-  if(_lastFileFolder == ""){
-    _nameCurrentFile = "1.txt";
-  }
-  if (maxSizePer < _lastFileSize){
-    int piceName = _lastFileFolder.substring(0, _lastFileFolder.indexOf(".")).toInt();
-     Serial.println("PiceName:");
-
-     Serial.print(piceName);
-     piceName ++;
-    _nameCurrentFile = String(piceName)+".txt";
-    Serial.println("_nameCurrentFile: do if 2");
-    Serial.println(_nameCurrentFile);
-
-  }
-
+  
 }
 
-void DataLogger::gravar()
-{
-  Serial.println("nome do arquivo a ser usado:");
-  Serial.println(_nameCurrentFile);
-    _currentFile = SD.open(_basePathFiles+_nameCurrentFile, FILE_WRITE);
-
+void DataLogger::gravar(String texto){
+  _getNameFileCurrent();
+  _currentFile = SD.open(_basePathFiles+_nameCurrentFile, FILE_WRITE);
     // if the file opened okay, write to it:
   if (_currentFile) {
-    Serial.println("Gravando dados no arquivo");
-    _currentFile.println("testing 1, 2, 3.");
-    _currentFile.println("testing 1, 2, 3.");
-    _currentFile.println("testing 1, 2, 3.");
+    _currentFile.println(texto);
     // close the file:
     _currentFile.close();
-    Serial.println("Fim da gravaçåo.");
   } else {
     // if the file didn't open, print an error:
     Serial.println("Ocorreu um erro ao abrir o arquivo");
   }
-  
 }
 
 void DataLogger::ler(){
@@ -73,7 +48,6 @@ void DataLogger::ler(){
     // read from the file until there's nothing else in it:
     while (_currentFile.available()) {
       Serial.write(_currentFile.read());
-      // Serial.println("leu linha ou linhas");
     }
     // close the file:
     _currentFile.close();
@@ -92,10 +66,8 @@ unsigned long DataLogger::size(){
 }
 
 void DataLogger::listFiles(){
-    
- _currentFile = SD.open(_basePathFiles);
+  _currentFile = SD.open(_basePathFiles);
   _printDirectory(_currentFile, 0);
-  // Serial.println("Fim da listgem!");
 }
 
 void DataLogger::_printDirectory(File dir, int numTabs) {
@@ -120,7 +92,6 @@ void DataLogger::_printDirectory(File dir, int numTabs) {
     } else {
 
       // files have sizes, directories do not
-
       Serial.print("\t\t");
       Serial.println(entry.size(), DEC);
     }
@@ -128,4 +99,16 @@ void DataLogger::_printDirectory(File dir, int numTabs) {
     entry.close();
 
   }
+}
+
+String DataLogger::_getNameFileCurrent(){
+  if(_lastFileFolder == ""){
+    _nameCurrentFile = "1.txt";
+  }
+  if (_maxSizePer < _lastFileSize){
+    int piceName = _lastFileFolder.substring(0, _lastFileFolder.indexOf(".")).toInt();
+     piceName ++;
+    _nameCurrentFile = String(piceName)+".txt";
+  }
+  return _nameCurrentFile;
 }

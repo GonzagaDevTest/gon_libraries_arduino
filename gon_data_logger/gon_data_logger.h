@@ -24,16 +24,17 @@ class DataLogger
       String _basePathFiles;
       String _lastFileFolder;
       unsigned long _lastFileSize;
+      unsigned long _maxSizePer;
+      String _getNameFileCurrent();
+
 
 
    public:
-       void config(int pin);
+       void config(int pin, unsigned long maxSizePer);
        void ler();
-       void gravar();
+       void gravar(String texto);
        unsigned long size();
-       unsigned long maxSizePer;
        void listFiles();
-       
 };
 
 #endif
